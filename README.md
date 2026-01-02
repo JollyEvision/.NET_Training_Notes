@@ -1,5 +1,107 @@
 # .NET_Training_Notes
 
+# ASP.NET Core Authorization -- Role-Based & Policy-Based
+
+## 1. Authentication vs Authorization
+
+-   **Authentication**: Who the user is (JWT, Cookies, OAuth, Identity)
+-   **Authorization**: What the user can do (Roles, Policies, Claims)
+
+------------------------------------------------------------------------
+
+## 2. Role-Based Authorization
+
+### What is it?
+
+Authorization based on **roles** assigned to a user.
+
+### How it works
+
+-   Roles are stored in:
+    -   JWT claims (`role`)
+    -   ASP.NET Identity roles
+-   `[Authorize(Roles = "Admin")]` checks if user has the role
+
+### Example
+
+``` csharp
+[Authorize(Roles = "Admin")]
+public IActionResult GetAdminsOnly()
+{
+    return Ok("Admin access");
+}
+```
+
+### Multiple Roles
+
+``` csharp
+[Authorize(Roles = "Admin,Manager")]
+```
+
+(User must have **at least one** role)
+
+### Pros
+
+-   Simple
+-   Easy to understand
+-   Good for small apps
+
+### Cons
+
+-   Hard to scale
+-   Not flexible
+-   Logic tied to role names
+
+------------------------------------------------------------------------
+
+## 3. Policy-Based Authorization
+
+### What is it?
+
+Authorization based on **rules (policies)** instead of roles.
+
+A policy can check: - Roles - Claims - Custom logic - Requirements +
+Handlers
+
+### Define Policy
+
+``` csharp
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireRole("Admin"));
+
+    options.AddPolicy("AgeAbove18", policy =>
+        policy.RequireClaim("Age", "18"));
+});
+```
+
+### Use Policy
+
+``` csharp
+[Authorize(Policy = "AdminOnly")]
+public IActionResult SecureEndpoint()
+{
+    return Ok("Policy access granted");
+}
+```
+
+------------------------------------------------------------------------
+
+## 4. Policy with Multiple Conditions
+
+``` csharp
+options.AddPolicy("AdminWithEmail", policy =>
+{
+    policy.RequireRole("Admin");
+    policy.RequireClaim("EmailVerified", "true");
+});
+```
+
+(User must satisfy **ALL conditions**)
+
+------------------------------------------------------------------------
+
 ## Authentication and Authorization using Identity framework and JWT
 Reference Video:  
 https://www.youtube.com/watch?v=99-r3Y48SYE
@@ -119,6 +221,8 @@ That’s why we add:
 ```
 
 ---
+Install Package: Microsoft.AspNetCore.Authentication.JwtBearer
+
 
 ## JWT Token Creation
 
