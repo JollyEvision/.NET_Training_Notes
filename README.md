@@ -334,4 +334,105 @@ string tokenString = new JwtSecurityTokenHandler()
 return tokenString;
 ```
 
+
+
+# Swagger (OpenAPI) in ASP.NET Core – Complete Explanation
+
+Swagger (OpenAPI) is used in ASP.NET Core Web API to:
+- **Document APIs**
+- **Test endpoints via UI**
+- **Support API versioning**
+- **Expose request/response schemas**
+
+ASP.NET Core uses **Swashbuckle.AspNetCore** to integrate Swagger.
+
 ---
+
+## 1. Required NuGet Packages
+
+```bash
+dotnet add package Swashbuckle.AspNetCore.Swagger
+dotnet add package Swashbuckle.AspNetCore.SwaggerGen
+dotnet add package Swashbuckle.AspNetCore.SwaggerUI
+```
+
+## What Swagger Generates
+- Swagger generates:
+- Swagger JSON → /swagger/{version}/swagger.json
+- Swagger UI → /swagger
+Each API version has its own Swagger document.
+
+## Basic Swagger Registration
+```csharp
+builder.Services.AddSwaggerGen();
+if(app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+```
+## ConfigureSwaggerOptions implements IConfigureOptions<SwaggerGenOptions>
+It is required when you want to use swagger UI with multiple versions in web app.Without it onlt first version will run and other versions will be failed to fetch.
+
+```csharp
+using Asp.Versioning.ApiExplorer;
+using Microsoft.Extensions.Options;
+using Microsoft.OpenApi;
+using Swashbuckle.AspNetCore.SwaggerGen;
+
+namespace WebAPIDemo.Options
+{
+    public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
+    {
+        private readonly IApiVersionDescriptionProvider _provider;
+        public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider)
+        {
+            _provider = provider;
+        }
+        void IConfigureOptions<SwaggerGenOptions>.Configure(SwaggerGenOptions options)
+        {
+            foreach (var description in _provider.ApiVersionDescriptions)
+            {
+                var info = new OpenApiInfo
+                {
+                    Title = $"Sample API: {description.ApiVersion}",
+                    Version = description.ApiVersion.ToString(),
+                    Description  ="Api with versioning support"
+                };
+                options.SwaggerDoc(description.GroupName, info);
+            }
+            options.DocInclusionPredicate((docName, apiDesc) => apiDesc.GroupName == docName);
+        }
+    }
+}
+
+```
+## Caching in .net web api
+
+Caching = storing frequently used data in fast memory so you don’t compute or fetch it again
+There are 3 main levels of caching:
+1. In-Memory Caching (Application Level)(In .net IMemoryCache)
+- Data stored inside the API process RAM
+- Lives as long as the application is running
+
+2. Response Caching (HTTP Level)
+- Caching entire HTTP responses
+- Based on:
+    URL
+    Headers
+    Query params
+    
+3.Distributed Caching (Enterprise Level)
+- Cache shared across servers
+- Uses Redis, Memcached, etc.
+
+### CACHE INVALIDATION
+When do we clear cache?
+- User role updated
+- User deactivated
+- Password changed
+
+```csharp
+builder.Services.AddMemoryCache(); //registers in memory cache
+// Add cache services 
+```
