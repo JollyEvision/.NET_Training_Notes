@@ -77,7 +77,7 @@ Stored as records in the database.
 ---
 
 ### 6. IdentityDbContext
-EF Core DbContext.
+EF Core DbContext.Extend this class to add auth data to your connected database
 
 Creates tables:
 - AspNetUsers
