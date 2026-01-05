@@ -334,8 +334,6 @@ string tokenString = new JwtSecurityTokenHandler()
 return tokenString;
 ```
 
-
-
 # Swagger (OpenAPI) in ASP.NET Core – Complete Explanation
 
 Swagger (OpenAPI) is used in ASP.NET Core Web API to:
@@ -485,5 +483,21 @@ Response caching stores the entire HTTP response so repeated requests return cac
 // Register in program.cs:
 builder.Services.AddResponseCaching();
 app.UseResponseCaching();
-
   ```
+
+### Response cahcing in controllers
+```csharp
+[HttpGet]
+[ResponseCache(Duration = 60)]
+public IActionResult GetProducts()
+{
+    return Ok(products);
+}
+```
+
+### Response cache properties:
+ - Duration - Cache time (seconds)
+ - Location - Client / Any / None
+ - NoStore - Disable caching
+ - VaryByHeader - Cache per header
+ - VaryByQueryKeys - Cache per query string
