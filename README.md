@@ -415,24 +415,75 @@ There are 3 main levels of caching:
 - Data stored inside the API process RAM
 - Lives as long as the application is running
 
-2. Response Caching (HTTP Level)
-- Caching entire HTTP responses
-- Based on:
-    URL
-    Headers
-    Query params
-    
-3.Distributed Caching (Enterprise Level)
-- Cache shared across servers
-- Uses Redis, Memcached, etc.
-
 ### CACHE INVALIDATION
 When do we clear cache?
 - User role updated
 - User deactivated
 - Password changed
 
+## Inject Memory Cache:
+
 ```csharp
 builder.Services.AddMemoryCache(); //registers in memory cache
+
 // Add cache services 
+private readonly IMemoryCache _cache;
+public UsersController(IMemoryCache cache)
+{
+    _cache = cache;
+}
+
+//Basic Cache Pattern
+public async Task<IActionResult> GetUsers()
+{
+    if (!_cache.TryGetValue("users", out List<User> users))
+    {
+        users = await _db.Users.ToListAsync();
+
+        _cache.Set("users", users, TimeSpan.FromMinutes(5));
+    }
+
+    return Ok(users);
+}
+
+//Cache Expiration Options
+new MemoryCacheEntryOptions
+{
+    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5),
+    SlidingExpiration = TimeSpan.FromMinutes(2),
+    Priority = CacheItemPriority.High
+};
 ```
+Option - Description
+AbsoluteExpiration -	Cache expires after fixed time
+SlidingExpiration -	Resets timer on access
+Priority -	Used during memory pressure
+
+### Important IMemoryCache Methods
+
+ - TryGetValue() -	Check if key exists
+ - Get() -	Get cached value
+ - Set() -	Store value
+ - Remove() -	Delete cache
+ - GetOrCreate() - Get or create cache
+
+### Cache Invalidation
+```csharp
+_cache.Remove("users");
+```
+
+2. Response Caching (HTTP Level)
+Response caching stores the entire HTTP response so repeated requests return cached responses without executing the controller again.
+- Caching entire HTTP responses
+- Based on:
+    URL
+    Headers
+    Query params
+
+
+  ```csharp
+// Register in program.cs:
+builder.Services.AddResponseCaching();
+app.UseResponseCaching();
+
+  ```
