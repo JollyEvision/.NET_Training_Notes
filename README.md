@@ -479,11 +479,11 @@ Response caching stores the entire HTTP response so repeated requests return cac
     Query params
 
 
-  ```csharp
+```csharp
 // Register in program.cs:
 builder.Services.AddResponseCaching();
 app.UseResponseCaching();
-  ```
+```
 
 ### Response cahcing in controllers
 ```csharp
