@@ -469,7 +469,11 @@ Priority -	Used during memory pressure
 ```csharp
 _cache.Remove("users");
 ```
-
+### Limitations of Memory Caching
+ - Not shared across servers
+ - Cache cleared on app restart
+ - Not suitable for load-balanced environments
+   
 2. Response Caching (HTTP Level)
 Response caching stores the entire HTTP response so repeated requests return cached responses without executing the controller again.
 - Caching entire HTTP responses
@@ -477,7 +481,6 @@ Response caching stores the entire HTTP response so repeated requests return cac
     URL
     Headers
     Query params
-
 
 ```csharp
 // Register in program.cs:
@@ -501,3 +504,21 @@ public IActionResult GetProducts()
  - NoStore - Disable caching
  - VaryByHeader - Cache per header
  - VaryByQueryKeys - Cache per query string
+
+### Limitations of response caching
+ - Works only for GET & HEAD
+ - Not suitable for authenticated users
+ - No fine-grained invalidation
+ - Cannot cache POST responses
+
+## Localization
+Localization is the process of making an application support multiple languages and cultures by:
+Translating text/messages
+Formatting dates, numbers, currency
+Adapting UI & validation messages
+
+Example:
+Hello → नमस्ते (Hindi)
+12/31/2025 → 31/12/2025
+₹1,23,456.50 → $123,456.50
+ 
