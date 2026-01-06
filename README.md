@@ -580,3 +580,123 @@ Can:
 Process a request
 Short-circuit the pipeline
 Pass control to the next middleware
+
+### What Is the Middleware Pipeline?
+The middleware pipeline is an ordered chain of middleware components.
+                        Request
+                          ↓
+                        Middleware 1
+                          ↓
+                        Middleware 2
+                          ↓
+                        Middleware 3
+                          ↓
+                        Endpoint (Controller)
+                          ↓
+                        Middleware 3
+                          ↓
+                        Middleware 2
+                          ↓
+                        Middleware 1
+                          ↓
+                        Response
+Order matters.
+
+### How Middleware Works Internally
+Each middleware:
+Receives HttpContext
+Calls next(context) to continue
+public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+{
+    // Before next
+    await next(context);
+    // After next
+}
+
+### Default Middleware Pipeline (Web API)
+#### Typical Program.cs:
+```csharp
+var app = builder.Build();
+app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+app.Run();
+```
+### Common Built-In Middleware
+Middleware	 Purpose
+1. UseRouting - Matches route
+2. UseAuthentication - Validates user
+3. UseAuthorization - Checks permissions
+4. UseCors - Cross-origin
+5. UseExceptionHandler	- Global error handling
+6. UseHttpsRedirection - Enforces HTTPS
+7. UseStaticFiles - Serves static files
+
+### Creating Custom Middleware
+```csharp
+public class RequestLoggingMiddleware
+{
+    private readonly RequestDelegate _next;
+
+    public RequestLoggingMiddleware(RequestDelegate next)
+    {
+        _next = next;
+    }
+    public async Task InvokeAsync(HttpContext context)
+    {
+        Console.WriteLine($"Request: {context.Request.Method} {context.Request.Path}");
+        await _next(context);
+        Console.WriteLine($"Response: {context.Response.StatusCode}");
+    }
+}
+```
+#### Register Middleware in Pipeline
+```csharp
+app.UseMiddleware<RequestLoggingMiddleware>();
+```
+
+#### Short-Circuiting the Pipeline:
+Middleware can stop further execution.
+```csharp
+public async Task InvokeAsync(HttpContext context)
+{
+    if (!context.Request.Headers.ContainsKey("X-API-KEY"))
+    {
+        context.Response.StatusCode = 401;
+        await context.Response.WriteAsync("Unauthorized");
+        return; // stops pipeline
+    }
+    await _next(context);
+}
+```
+
+- Use
+Calls next middleware
+app.Use(async (ctx, next) =>
+{
+    await next();
+});
+
+- Run
+
+Terminal middleware
+
+Does NOT call next
+
+app.Run(async ctx =>
+{
+    await ctx.Response.WriteAsync("End");
+});
+
+Map
+
+Branches pipeline by path
+
+app.Map("/health", app =>
+{
+    app.Run(async ctx =>
+    {
+        await ctx.Response.WriteAsync("Healthy");
+    });
+});
