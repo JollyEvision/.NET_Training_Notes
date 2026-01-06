@@ -522,3 +522,61 @@ Hello → नमस्ते (Hindi)
 12/31/2025 → 31/12/2025
 ₹1,23,456.50 → $123,456.50
  
+### .net framework vs .net core
+Feature	-.NET Framework	-.NET Core
+Platform - Windows only - Cross-platform
+Open Source	- ❌ No	 - ✅ Yes
+Performance	- Slower -	Faster
+Deployment - System-wide - Side-by-side
+Container Support - ❌ Poor - ✅ Excellent
+Microservices - ❌ No - ✅ Yes
+CLI Support - Limited - Excellent (dotnet CLI)
+Cloud Ready - ❌ No - ✅ Yes
+API Model - ASP.NET - ASP.NET Core
+Dependency Injection - ❌ Limited - ✅ Built-in
+Configuration - web.config - appsettings.json
+Hosting - IIS only - IIS, Kestrel, Docker
+
+Deployment Difference
+ - .NET Framework:
+Installed once per machine
+One version for all apps
+Risk of breaking changes
+ - .NET Core:
+Each app carries its own runtime
+Side-by-side execution
+No version conflicts
+
+### What is “Environment” in .NET Core?
+An environment represents where your application is running, such as:
+ - Development
+ - Staging
+ - Production
+ - QA / UAT / Local (custom)
+.NET uses this to:
+ - Load different configurations
+ - Enable/disable features
+ - Change behavior without code changes
+
+## Key Environment Variable
+ASPNETCORE_ENVIRONMENT: This variable controls everything. It exists inside properties->launchSettings.json
+
+## Program.cs (.NET 6+)
+var builder = WebApplication.CreateBuilder(args);
+if (builder.Environment.IsDevelopment())
+{
+    // Dev-only code
+}
+Environment Checks: 
+ - IsDevelopment()
+ - IsStaging()
+ - IsProduction()
+ - IsEnvironment("QA")
+
+ ### What Is Middleware in .NET Core?
+Handles HTTP requests and responses
+Executes one after another in a pipeline
+Can:
+Process a request
+Short-circuit the pipeline
+Pass control to the next middleware
