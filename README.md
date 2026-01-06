@@ -698,3 +698,26 @@ app.Map("/health", app =>
     });
 });
 ```
+### What is DI Lifetime?
+DI lifetime defines how long a service instance is created and reused by the dependency injection
+container. ASP.NET Core supports three lifetimes: Singleton, Scoped, and Transient.
+1. Singleton
+Definition: A single instance is created once and shared for the entire application lifetime.
+Use cases: - Logging - Caching - Configuration
+Registration:
+AddSingleton<ICacheService, MemoryCacheService>()
+Key Point: Same instance is used across all requests. Must be thread-safe.
+
+2. Scoped
+Definition: One instance is created per HTTP request.
+Use cases: - Business services - DbContext - Repository pattern
+Registration:
+AddScoped<IOrderService, OrderService>()
+Key Point: Same instance within one request, new instance for each new request.
+
+3. Transient
+Definition: A new instance is created every time it is requested.
+Use cases: - Lightweight services - Utility helpers - Stateless services
+Registration:
+AddTransient<IEmailService, EmailService>()
+Key Point: New instance each time, even within the same request.
