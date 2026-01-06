@@ -673,26 +673,26 @@ public async Task InvokeAsync(HttpContext context)
 
 - Use
 Calls next middleware
+```csharp
 app.Use(async (ctx, next) =>
 {
     await next();
 });
+```
 
 - Run
-
 Terminal middleware
-
 Does NOT call next
-
+```csharp
 app.Run(async ctx =>
 {
     await ctx.Response.WriteAsync("End");
 });
+```
 
-Map
-
+- Map
 Branches pipeline by path
-
+```csharp
 app.Map("/health", app =>
 {
     app.Run(async ctx =>
@@ -700,3 +700,4 @@ app.Map("/health", app =>
         await ctx.Response.WriteAsync("Healthy");
     });
 });
+```
